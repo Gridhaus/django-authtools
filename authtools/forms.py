@@ -134,7 +134,13 @@ class UserChangeForm(forms.ModelForm):
     password hash display field.
     """
     password = ReadOnlyPasswordHashField(label=_("Password"),
-        widget=BetterReadOnlyPasswordHashWidget)
+        widget=BetterReadOnlyPasswordHashWidget,
+        help_text=_(
+             "Raw passwords are not stored, so there is no way to see this "
+             "user's password, but you can change the password using "
+             "<a href=\"{}\">this form</a>."
+        ),
+    )
 
     class Meta:
         model = User
@@ -142,6 +148,7 @@ class UserChangeForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(UserChangeForm, self).__init__(*args, **kwargs)
+        self.fields['password'].help_text = self.fields['password'].help_text.format('../password/')
         f = self.fields.get('user_permissions', None)
         if f is not None:
             f.queryset = f.queryset.select_related('content_type')
